@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>꿀벌 꽃 착륙 게임</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", system-ui, sans-serif;
+      background: linear-gradient(#b8ecff, #e4ffd7);
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+    .wrap { text-align: center; }
+    canvas {
+      border: 3px solid #333;
+      border-radius: 12px;
+      background: #c8f6ff;
+      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+    p { margin: 8px 0; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🐝 꿀벌 꽃 착륙 게임</h1>
+    <p>방향키(← ↑ ↓)로 장애물을 피해서 오른쪽 꽃에 착륙하세요!</p>
+    <p id="info">시작하려면 스페이스바를 누르세요.</p>
+    <canvas id="game" width="900" height="500"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const info = document.getElementById('info');
+
+    const GAME_WIDTH = canvas.width;
+    const GAME_HEIGHT = canvas.height;
+    const FLOOR_Y = GAME_HEIGHT - 25;
+
+    const state = {
+      started: false,
+      over: false,
+      win: false,
+      score: 0,
+      speed: 2.6,
+      best: 0
+    };
+
+    const bee = {
+      x: 120,
+      y: GAME_HEIGHT / 2,
+      w: 60,
+      h: 40,
+      vy: 0,
+      gravity: 0.24,
+      flap: -5.8
+    };
+
+    const flower = {
+      x: GAME_WIDTH - 120,
+      y: GAME_HEIGHT / 2 + 40,
+      r: 45
+    };
+
+    const obstacles = [];
+    const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false };
+
+    function reset() {
+      state.started = false;
+      state.over = false;
+      state.win = false;
+      state.score = 0;
+      state.speed = 2.6;
+      bee.x = 120;
+      bee.y = GAME_HEIGHT / 2;
+      bee.vy = 0;
+      obstacles.length = 0;
+      for (let i = 0; i < 6; i++) {
+        spawnObstacle(420 + i * 180);
+      }
+      info.textContent = '시작하려면 스페이스바를 누르세요.';
+    }
+
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function spawnObstacle(x = GAME_WIDTH + rand(0, 200)) {
+      const h = rand(60, 170);
+      const y = rand(60, GAME_HEIGHT - 120 - h);
+      obstacles.push({ x, y, w: rand(20, 35), h, passed: false });
+    }
+
+    function update() {
+      if (!state.started || state.over || state.win) return;
+
+      if (keys.ArrowUp) bee.vy += bee.flap * 0.08;
+      if (keys.ArrowDown) bee.vy += 0.38;
+      if (keys.ArrowLeft) bee.x = Math.max(20, bee.x - 1.8);
+      bee.vy += bee.gravity;
+      bee.vy *= 0.98;
+      bee.y += bee.vy;
+      bee.x += 1.15;
+
+      if (bee.y < 20) { bee.y = 20; bee.vy = 0; }
+      if (bee.y + bee.h > FLOOR_Y) {
+        bee.y = FLOOR_Y - bee.h;
+        state.over = true;
+        info.textContent = `앗! 땅에 부딪혔어요. 점수: ${state.score} (R로 재시작)`;
+      }
+
+      for (const o of obstacles) {
+        o.x -= state.speed;
+        if (!o.passed && o.x + o.w < bee.x) {
+          o.passed = true;
+          state.score += 10;
+          state.speed += 0.05;
+        }
+
+        if (rectHit(bee.x, bee.y, bee.w, bee.h, o.x, o.y, o.w, o.h)) {
+          state.over = true;
+          info.textContent = `장애물과 충돌! 점수: ${state.score} (R로 재시작)`;
+        }
+      }
+
+      while (obstacles.length && obstacles[0].x + obstacles[0].w < -20) {
+        obstacles.shift();
+        spawnObstacle();
+      }
+
+      if (circleRectHit(flower.x, flower.y, flower.r, bee.x, bee.y, bee.w, bee.h)) {
+        state.win = true;
+        state.best = Math.max(state.best, state.score);
+        info.textContent = `성공! 꽃에 착륙했어요 🌸 점수: ${state.score} | 최고: ${state.best} (R로 다시 하기)`;
+      } else {
+        info.textContent = `점수: ${state.score} | 속도: ${state.speed.toFixed(1)}`;
+      }
+    }
+
+    function rectHit(ax, ay, aw, ah, bx, by, bw, bh) {
+      return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+    }
+
+    function circleRectHit(cx, cy, cr, rx, ry, rw, rh) {
+      const nearestX = Math.max(rx, Math.min(cx, rx + rw));
+      const nearestY = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - nearestX;
+      const dy = cy - nearestY;
+      return (dx * dx + dy * dy) <= cr * cr;
+    }
+
+    function drawBee() {
+      const x = bee.x, y = bee.y;
+      ctx.save();
+      ctx.translate(x, y);
+
+      ctx.fillStyle = '#ffd43b';
+      ctx.fillRect(10, 8, 40, 24);
+      ctx.fillStyle = '#333';
+      ctx.fillRect(18, 8, 7, 24);
+      ctx.fillRect(32, 8, 7, 24);
+
+      ctx.fillStyle = '#f1f3f5';
+      ctx.beginPath();
+      ctx.ellipse(20, 8, 12, 8, -0.3, 0, Math.PI * 2);
+      ctx.ellipse(38, 7, 12, 8, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.arc(52, 20, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawFlower() {
+      ctx.save();
+      ctx.translate(flower.x, flower.y);
+      for (let i = 0; i < 8; i++) {
+        const a = (Math.PI * 2 / 8) * i;
+        ctx.beginPath();
+        ctx.fillStyle = '#ff6bcb';
+        ctx.arc(Math.cos(a) * 30, Math.sin(a) * 30, 18, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.fillStyle = '#ffd43b';
+      ctx.arc(0, 0, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.strokeStyle = '#2f9e44';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(flower.x, flower.y + 22);
+      ctx.lineTo(flower.x, FLOOR_Y);
+      ctx.stroke();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+      ctx.fillStyle = '#fff3bf';
+      ctx.fillRect(0, FLOOR_Y, GAME_WIDTH, GAME_HEIGHT - FLOOR_Y);
+
+      drawFlower();
+
+      ctx.fillStyle = '#795548';
+      for (const o of obstacles) {
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+      }
+
+      drawBee();
+
+      if (!state.started) {
+        overlay('스페이스바를 눌러 시작!');
+      } else if (state.over) {
+        overlay('실패! R 키로 재시작');
+      } else if (state.win) {
+        overlay('성공! 꽃에 착륙 완료 🌸');
+      }
+    }
+
+    function overlay(text) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 42px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(text, GAME_WIDTH / 2, GAME_HEIGHT / 2);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (!state.started) {
+          state.started = true;
+          info.textContent = '점수: 0 | 속도: 2.6';
+        }
+        e.preventDefault();
+      }
+      if (e.key === 'r' || e.key === 'R') reset();
+      if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
+    });
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    reset();
+    loop();
+  </script>
+</body>
+</html>
