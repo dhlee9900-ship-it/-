@@ -1,0 +1,229 @@
+:root {
+  --bg: #f6f3ff;
+  --panel: #ffffff;
+  --ink: #20223a;
+  --muted: #666a84;
+  --primary: #7057ff;
+  --primary-dark: #4d39ca;
+  --accent: #ffb347;
+  --success: #0f9d7a;
+  --shadow: 0 24px 60px rgba(65, 53, 128, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(255, 179, 71, 0.32), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(112, 87, 255, 0.24), transparent 32rem),
+    var(--bg);
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 8px 14px;
+  margin: 0 0 12px;
+  border-radius: 999px;
+  background: rgba(112, 87, 255, 0.12);
+  color: var(--primary-dark);
+  font-weight: 800;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 5vw, 4.4rem);
+  letter-spacing: -0.06em;
+}
+
+.hero-copy {
+  max-width: 760px;
+  margin: 16px auto 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.playground {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) 380px;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.stage-card,
+.wardrobe {
+  border: 1px solid rgba(112, 87, 255, 0.12);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.stage-card {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+}
+
+.character-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 540px;
+  padding: 34px;
+  border: 4px dashed transparent;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(246, 243, 255, 0.88)),
+    repeating-linear-gradient(45deg, rgba(112, 87, 255, 0.08) 0 10px, transparent 10px 20px);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.character-stage.is-over,
+.character-stage:focus-visible {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.drop-hint {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: white;
+  font-weight: 800;
+  opacity: 0.84;
+}
+
+.character {
+  width: min(78%, 390px);
+  filter: drop-shadow(0 24px 28px rgba(46, 34, 99, 0.22));
+}
+
+.outfit-layer * {
+  vector-effect: non-scaling-stroke;
+}
+
+.character-label {
+  padding: 26px 30px 32px;
+  background: var(--panel);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: rgba(15, 157, 122, 0.13);
+  color: var(--success);
+  font-weight: 900;
+}
+
+.character-label h2,
+.wardrobe h2 {
+  margin: 14px 0 8px;
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+
+.character-label p,
+.wardrobe p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.wardrobe {
+  padding: 28px;
+}
+
+.costume-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.costume-card {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 22px;
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(65, 53, 128, 0.1);
+  cursor: grab;
+  text-align: left;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.costume-card:hover,
+.costume-card:focus-visible,
+.costume-card.is-selected {
+  border-color: var(--primary);
+  box-shadow: 0 16px 36px rgba(112, 87, 255, 0.2);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.costume-card:active {
+  cursor: grabbing;
+}
+
+.costume-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  font-size: 2.2rem;
+  background: var(--card-color, rgba(112, 87, 255, 0.14));
+}
+
+.costume-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1.08rem;
+}
+
+.costume-card span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+@media (max-width: 920px) {
+  .playground {
+    grid-template-columns: 1fr;
+  }
+
+  .character-stage {
+    min-height: 470px;
+  }
+}
