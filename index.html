@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>바다 역할 카드</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">ROLE PLAY • UNDER THE SEA</p>
+        <h1>바다 역할 카드</h1>
+        <p class="intro">카드를 한 장씩 뽑아, 신나는 이야기 바다로 출발해요!</p>
+      </header>
+
+      <section class="game-board" aria-labelledby="game-title">
+        <div class="sea-decor bubble bubble-one"></div>
+        <div class="sea-decor bubble bubble-two"></div>
+        <div class="sea-decor bubble bubble-three"></div>
+        <div class="seaweed left-seaweed" aria-hidden="true">〽</div>
+        <div class="seaweed right-seaweed" aria-hidden="true">〽</div>
+
+        <div class="board-heading">
+          <div>
+            <p class="small-label">오늘의 배역 뽑기</p>
+            <h2 id="game-title">누가 어떤 역할일까요?</h2>
+          </div>
+          <div class="remaining" aria-live="polite"><strong id="remaining-count">10</strong><span>장 남음</span></div>
+        </div>
+
+        <div class="card-area">
+          <button class="role-card face-down" id="draw-card" type="button" aria-label="역할 카드 뽑기">
+            <span class="card-pattern">✦</span>
+            <span class="card-back-title">바다<br />이야기</span>
+            <span class="card-shell">✦</span>
+          </button>
+
+          <div class="draw-instruction" id="instruction">
+            <span class="sparkle">✦</span>
+            <p>카드를 눌러<br /><strong>역할을 뽑아보세요!</strong></p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button class="reset-button" id="reset-button" type="button">↻ &nbsp;처음부터 다시 뽑기</button>
+          <p id="status-message" aria-live="polite">모든 친구가 하나씩 뽑을 수 있어요.</p>
+        </div>
+      </section>
+
+      <section class="role-guide" aria-labelledby="guide-title">
+        <div class="guide-heading">
+          <p class="small-label">등장인물</p>
+          <h2 id="guide-title">우리 바다 친구들</h2>
+        </div>
+        <ul class="role-list" id="role-list"></ul>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
